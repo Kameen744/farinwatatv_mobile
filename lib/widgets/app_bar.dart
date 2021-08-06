@@ -77,6 +77,74 @@ class MyAppBar extends StatelessWidget {
         );
         break;
 
+      case 3:
+        return SafeArea(
+          child: Padding(
+            padding: EdgeInsets.only(top: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: Icon(LineIcons.arrowLeft),
+                  color: white,
+                  onPressed: () {
+                    model.selectPage(pageIndex: model.previousPageIndex);
+                  },
+                ),
+                Text(
+                  'Downloads',
+                  style: TextStyle(
+                    color: white,
+                    fontFamily: 'Bad Script',
+                    fontSize: 20.0,
+                    letterSpacing: 2,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(
+                  width: 50,
+                ),
+              ],
+            ),
+          ),
+        );
+        break;
+
+      case 4:
+        return SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.only(top: 5),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                IconButton(
+                  icon: Icon(LineIcons.arrowLeft),
+                  color: white,
+                  onPressed: () {
+                    model.selectPage(pageIndex: model.previousPageIndex);
+                  },
+                ),
+                Text(
+                  'Favourites',
+                  style: TextStyle(
+                    color: white,
+                    fontFamily: 'Bad Script',
+                    fontSize: 20.0,
+                    letterSpacing: 2,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(
+                  width: 50,
+                ),
+              ],
+            ),
+          ),
+        );
+        break;
+
       default:
         return SafeArea(
           child: Row(

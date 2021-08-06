@@ -1,12 +1,9 @@
-import 'package:farinwatatv/classess/video_class.dart';
-
 class VideoCategory {
   int id;
   String title;
   String searchText;
   String type;
   String image;
-  List<VideoClass> videos;
 
   // VideoCategory({
   //   this.title,

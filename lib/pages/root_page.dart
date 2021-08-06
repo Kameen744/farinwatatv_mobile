@@ -1,4 +1,5 @@
 import 'package:farinwatatv/models/app_model.dart';
+import 'package:farinwatatv/pages/favourites_page.dart';
 import 'package:farinwatatv/pages/search_page.dart';
 import 'package:farinwatatv/theme/color.dart';
 import 'package:farinwatatv/widgets/drawer_menu.dart';
@@ -24,47 +25,17 @@ class _RootPageState extends State<RootPage> {
     SearchPage(),
     LivePage(),
     DownloadPage(),
+    FavouritesPage(),
   ];
 
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<AppModel>(builder: (context, child, model) {
       return Scaffold(
-        // body: SliderMenuContainer(
-        //   hasAppBar: false,
-        //   appBarColor: black,
-        //   // drawerIcon: Icon(LineIcons.bars, color: white),
-        //   drawerIconColor: white,
-        //   key: model.drawerKey,
-        //   sliderMenuOpenSize: 200,
-        //   title: Container(
-        //     width: double.infinity,
-        //     child: Center(
-        //       child: Text(
-        //         'Farinwata TV',
-        //         style: TextStyle(
-        //           color: white,
-        //           fontFamily: 'Bad Script',
-        //           fontSize: 24.0,
-        //           letterSpacing: 2,
-        //           fontWeight: FontWeight.bold,
-        //         ),
-        //       ),
-        //     ),
-        //   ),
-        //   sliderMenu: SafeArea(
-        //     child: DrawerMenu(),
-        //   ),
-        //   sliderMain: Container(
-        //     color: white,
-        //     child: getBody(model),
-        //   ),
-        //   trailing: SizedBox(),
-        // ),
         key: model.scaffoldKey,
         drawer: SafeArea(
           child: Container(
-            width: 200,
+            width: 250,
             child: Drawer(
               child: DrawerMenu(),
             ),
@@ -146,7 +117,10 @@ class _RootPageState extends State<RootPage> {
           scale: animation,
         );
       },
-      child: pages[model.selectedPageIndex],
+      child: Padding(
+        padding: EdgeInsets.symmetric(horizontal: 5),
+        child: pages[model.selectedPageIndex],
+      ),
     );
     // return IndexedStack(
     //   index: model.selectedPageIndex,
@@ -181,6 +155,10 @@ class _RootPageState extends State<RootPage> {
               ),
               NavigationBarButton(
                 icon: LineIcons.download,
+                backgroundColor: black,
+              ),
+              NavigationBarButton(
+                icon: LineIcons.heart,
                 backgroundColor: black,
               ),
             ],

@@ -19,17 +19,15 @@ class LivePage extends StatefulWidget {
 class _LivePageState extends State<LivePage> {
   final GlobalKey webViewKey = GlobalKey();
   final mainUrl =
-      "https://player.twitch.tv/?channel=farinwatatv&enableExtensions=true&muted=false&parent=twitch.tv&player=popout&volume=1";
+      "https://player.twitch.tv/?channel=farinwatatv&enableExtensions=true&parent=twitch.tv&player=popout&volume=1";
 
   InAppWebViewController webViewController;
 
   InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
     crossPlatform: InAppWebViewOptions(
-      disableContextMenu: true,
-      disableHorizontalScroll: true,
-      disableVerticalScroll: true,
       useShouldOverrideUrlLoading: true,
-      mediaPlaybackRequiresUserGesture: false,
+      // mediaPlaybackRequiresUserGesture: false,
+      // preferredContentMode: UserPreferredContentMode.MOBILE,
     ),
     android: AndroidInAppWebViewOptions(
       useHybridComposition: true,
@@ -76,7 +74,7 @@ class _LivePageState extends State<LivePage> {
                           key: webViewKey,
                           initialUrlRequest: URLRequest(
                             url: Uri.parse(
-                                "https://player.twitch.tv/?channel=farinwatatv&enableExtensions=true&muted=false&parent=twitch.tv&player=popout&volume=1"),
+                                "https://player.twitch.tv/?channel=farinwatatv&enableExtensions=true&parent=twitch.tv&player=popout&volume=1"),
                           ),
                           pullToRefreshController: pullToRefreshController,
                           onWebViewCreated: (controller) {
@@ -96,39 +94,39 @@ class _LivePageState extends State<LivePage> {
                           },
                         ),
                       ),
-                      Positioned(
-                        top: 10,
-                        left: 5,
-                        child: Container(
-                          color: Colors.transparent,
-                          width: 150,
-                          height: 120,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 12,
-                        right: 110,
-                        child: Container(
-                          color: Colors.transparent,
-                          width: 30,
-                          height: 25,
-                        ),
-                      ),
-                      Positioned(
-                        bottom: 12,
-                        right: 10,
-                        child: Container(
-                          color: Colors.red,
-                          width: 65,
-                          height: 25,
-                          child: Center(
-                            child: Text(
-                              'Live',
-                              style: TextStyle(color: white),
-                            ),
-                          ),
-                        ),
-                      ),
+                      // Positioned(
+                      //   top: 10,
+                      //   left: 5,
+                      //   child: Container(
+                      //     color: Colors.transparent,
+                      //     width: 150,
+                      //     height: 120,
+                      //   ),
+                      // ),
+                      // Positioned(
+                      //   bottom: 12,
+                      //   right: 110,
+                      //   child: Container(
+                      //     color: Colors.transparent,
+                      //     width: 30,
+                      //     height: 25,
+                      //   ),
+                      // ),
+                      // Positioned(
+                      //   bottom: 12,
+                      //   right: 10,
+                      //   child: Container(
+                      //     color: Colors.red,
+                      //     width: 65,
+                      //     height: 25,
+                      //     child: Center(
+                      //       child: Text(
+                      //         'Live',
+                      //         style: TextStyle(color: white),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),

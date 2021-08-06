@@ -6,7 +6,7 @@ import 'package:farinwatatv/widgets/saved_video_list.dart';
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-class DownloadPage extends StatelessWidget {
+class FavouritesPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var size = MediaQuery.of(context).size;
@@ -22,7 +22,7 @@ class DownloadPage extends StatelessWidget {
             builder: (child, context, model) {
               return Container(
                 child: FutureBuilder(
-                    future: model.getSavedVideos(),
+                    future: model.getFavVideos(),
                     builder: (BuildContext context, AsyncSnapshot snapshot) {
                       if (snapshot.hasData) {
                         return ListView.builder(

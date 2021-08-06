@@ -1,6 +1,7 @@
 import 'package:farinwatatv/models/app_model.dart';
 import 'package:farinwatatv/theme/color.dart';
 import 'package:flutter/material.dart';
+import 'package:line_icons/line_icons.dart';
 import 'package:scoped_model/scoped_model.dart';
 
 class DrawerMenu extends StatelessWidget {
@@ -16,27 +17,48 @@ class DrawerMenu extends StatelessWidget {
               radius: 65,
               child: CircleAvatar(
                 radius: 65,
-                backgroundImage: AssetImage('assets/images/logo.jpg'),
+                backgroundImage: AssetImage('assets/images/icon.png'),
               ),
             ),
-            SizedBox(
-              height: 20,
+            Padding(
+              padding: const EdgeInsets.symmetric(vertical: 10),
+              child: Text('Startimes Channel 178 / 470'),
             ),
             Expanded(
-              child: Column(
-                children: [
-                  Divider(),
-                  sliderItem('Home', Icons.home, model, 0, context),
-                  Divider(),
-                  sliderItem('Search', Icons.search, model, 1, context),
-                  Divider(),
-                  sliderItem('Live', Icons.video_library, model, 2, context),
-                  Divider(),
-                  sliderItem('Likes', Icons.add_link, model, 0, context),
-                  Divider(),
-                  // sliderItem('Setting', Icons.settings),
-                  // sliderItem('LogOut', Icons.arrow_back_ios),
-                ],
+              child: Padding(
+                padding: EdgeInsets.only(left: 5.0),
+                child: Column(
+                  children: [
+                    Divider(),
+                    sliderItem('Home', Icons.home, model, 0, context),
+                    Divider(),
+                    sliderItem('Search', Icons.search, model, 1, context),
+                    Divider(),
+                    sliderItem('Live', Icons.video_library, model, 2, context),
+                    Divider(),
+                    sliderItem(
+                        'Downloads', LineIcons.download, model, 3, context),
+                    Divider(),
+                    sliderItem(
+                        'Favourites', LineIcons.heart, model, 4, context),
+                    Divider(),
+                    Expanded(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Center(
+                            child: Text('Contact'),
+                          ),
+                          Divider(),
+                          Contact(number: '+234-8051101589'),
+                          Contact(number: '+234-8069111106'),
+                          Contact(number: '+234-8033225331'),
+                          Divider(),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
             ),
           ],
@@ -62,4 +84,22 @@ class DrawerMenu extends StatelessWidget {
           model.closeDrawer(context);
         },
       );
+}
+
+class Contact extends StatelessWidget {
+  final String number;
+  Contact({Key key, @required this.number}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Center(
+      child: Text(
+        number,
+        style: TextStyle(
+          letterSpacing: 3.5,
+          fontSize: 12,
+        ),
+      ),
+    );
+  }
 }

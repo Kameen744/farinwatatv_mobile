@@ -1,3 +1,4 @@
+import 'package:farinwatatv/theme/color.dart';
 import 'package:flutter/material.dart';
 
 class Progress {
@@ -5,7 +6,9 @@ class Progress {
     return Center(
       child: Padding(
         padding: const EdgeInsets.all(10.0),
-        child: CircularProgressIndicator(),
+        child: CircularProgressIndicator(
+          color: grey,
+        ),
       ),
     );
   }

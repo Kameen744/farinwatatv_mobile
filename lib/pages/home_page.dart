@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:farinwatatv/classess/time_ago_format.dart';
 import 'package:farinwatatv/classess/video_category.dart';
@@ -24,7 +25,11 @@ class HomePage extends StatelessWidget {
           preferredSize: size,
         ),
         backgroundColor: black,
-        body: getBody(size: size, context: context, model: model),
+        body: getBody(
+          size: size,
+          context: context,
+          model: model,
+        ),
       );
     });
   }
@@ -32,19 +37,22 @@ class HomePage extends StatelessWidget {
   Widget getBody({size, @required context, AppModel model}) {
     return ListView(
       children: [
-        if (model.carouselVideos != null)
-          _getCarouselSlider(model.carouselVideos, context),
+        _getCarouselSlider(model, context),
         SizedBox(height: 30),
         if (model.videoTypes != null)
           for (VideoType vType in model.videoTypes)
             _getSingleChildScroll(
-                size: size, model: model, context: context, vType: vType),
+              size: size,
+              mainContext: context,
+              model: model,
+              vType: vType,
+            ),
         SizedBox(height: 70),
       ],
     );
   }
 
-  _getCarouselSlider(List<VideoClass> videos, context) {
+  _getCarouselSlider(AppModel model, context) {
     return CarouselSlider(
       options: CarouselOptions(
         enlargeCenterPage: true,
@@ -53,114 +61,130 @@ class HomePage extends StatelessWidget {
         autoPlay: true,
       ),
       items: [
-        for (VideoClass video in videos)
-          GestureDetector(
-            onTap: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => VideoPlayerPage(
-                    video: video,
-                  ),
-                ),
-              );
-            },
-            child: Stack(
-              children: [
-                Container(
-                  margin: EdgeInsets.only(top: 10),
-                  decoration: BoxDecoration(
-                    // boxShadow: [
-                    //   BoxShadow(
-                    //     color: grey,
-                    //     offset: Offset(0, 1),
-                    //     blurRadius: 6.0,
-                    //   ),
-                    // ],
-                    borderRadius: BorderRadius.circular(20),
-                    image: DecorationImage(
-                      image: NetworkImage(video.thumbHigh),
-                      fit: BoxFit.cover,
+        if (model.carouselVideos != null)
+          for (VideoClass video in model.carouselVideos)
+            GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VideoPlayerPage(
+                      video: video,
                     ),
                   ),
-                ),
-                Positioned(
-                  top: 10,
-                  child: Padding(
-                    padding: EdgeInsets.all(5),
-                    child: Icon(
-                      LineIcons.playCircle,
-                      color: white,
-                    ),
-                  ),
-                ),
-                Positioned(
-                  bottom: 0,
-                  child: Container(
-                    padding: EdgeInsets.only(bottom: 10),
+                );
+              },
+              child: Stack(
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(top: 15),
+                    constraints: BoxConstraints.expand(),
                     decoration: BoxDecoration(
-                      color: Color.fromRGBO(0, 0, 0, 0.6),
-                      // color: Colors.red,
-                      borderRadius: BorderRadius.only(
-                        bottomLeft: Radius.circular(20),
-                        bottomRight: Radius.circular(20),
-                      ),
-                    ),
-                    width: MediaQuery.of(context).size.width - 27,
-                    child: Column(
-                      children: [
-                        Container(
-                          height: 2,
-                          width: 150,
-                          decoration: BoxDecoration(
-                            color: white,
-                          ),
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Expanded(
-                              child: Padding(
-                                padding: EdgeInsets.only(top: 10, left: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      video.title,
-                                      style:
-                                          TextStyle(color: white, fontSize: 13),
-                                    ),
-                                    Text(
-                                      TimeAgoFormat.formatDate(
-                                          date: video.publishedAt),
-                                      style:
-                                          TextStyle(color: white, fontSize: 10),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                            Padding(
-                              padding: EdgeInsets.only(right: 10),
-                              child: Text(
-                                TimeAgoFormat.format(date: video.publishedAt),
-                                style: TextStyle(fontSize: 9),
-                              ),
-                            ),
-                          ],
+                      color: black,
+                      borderRadius: BorderRadius.circular(15),
+                      boxShadow: [
+                        BoxShadow(
+                          color: grey,
+                          offset: Offset(0, 0),
+                          blurRadius: 1.0,
                         ),
                       ],
                     ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(15),
+                      child: CachedNetworkImage(
+                        fit: BoxFit.fitWidth,
+                        imageUrl: video.thumbnailUrl,
+                        placeholder: (context, url) => Image(
+                          image: AssetImage('assets/images/banner.jpg'),
+                        ),
+                        errorWidget: (context, url, error) => Image(
+                          image: AssetImage('assets/images/banner.jpg'),
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          )
+                  Positioned(
+                    top: 15,
+                    child: Padding(
+                      padding: EdgeInsets.all(5),
+                      child: Icon(
+                        LineIcons.playCircle,
+                        color: white,
+                      ),
+                    ),
+                  ),
+                  Positioned(
+                    bottom: 0,
+                    left: 15,
+                    right: 15,
+                    child: Container(
+                      padding: EdgeInsets.only(bottom: 8),
+                      decoration: BoxDecoration(
+                        color: Color.fromRGBO(0, 0, 0, 0.8),
+                        borderRadius:
+                            BorderRadius.vertical(top: Radius.circular(15)),
+                      ),
+                      width: MediaQuery.of(context).size.width - 50,
+                      child: Column(
+                        children: [
+                          Container(
+                            height: 2,
+                            width: 100,
+                            decoration: BoxDecoration(
+                              color: white,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Expanded(
+                                child: Padding(
+                                  padding: EdgeInsets.only(top: 10, left: 10),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Text(
+                                        video.title.length > 35
+                                            ? video.title
+                                                .toUpperCase()
+                                                .substring(0, 25)
+                                            : video.title.toUpperCase(),
+                                        style: TextStyle(
+                                            color: white, fontSize: 13),
+                                      ),
+                                      Text(
+                                        TimeAgoFormat.formatDate(
+                                            date: video.publishedAt),
+                                        style: TextStyle(
+                                            color: white, fontSize: 10),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(right: 10),
+                                child: Text(
+                                  TimeAgoFormat.format(date: video.publishedAt),
+                                  style: TextStyle(fontSize: 9),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )
       ],
     );
   }
 
-  _getSingleChildScroll({size, context, AppModel model, VideoType vType}) {
+  _getSingleChildScroll({size, mainContext, AppModel model, VideoType vType}) {
     return Container(
       padding: EdgeInsets.symmetric(horizontal: 3),
       child: Column(
@@ -176,7 +200,8 @@ class HomePage extends StatelessWidget {
                     color: white,
                     fontWeight: FontWeight.w500,
                     fontFamily: 'Source Sans Pro',
-                    fontSize: 15,
+                    fontSize: 17,
+                    letterSpacing: 2.0,
                   ),
                 ),
                 SizedBox(width: 8),
@@ -192,85 +217,104 @@ class HomePage extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                for (VideoCategory category in model.vCategories)
-                  if (category.type == vType.title)
-                    Padding(
-                      padding: EdgeInsets.all(10),
-                      child: InkWell(
-                        borderRadius: BorderRadius.circular(15),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  CategoryDetailPage(category: category),
-                            ),
-                          );
-                        },
-                        child: Stack(
-                          children: [
-                            Container(
-                              height: 130,
-                              width: 230,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(15),
-                                color: Colors.black,
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: grey,
-                                    offset: Offset(0, 0),
-                                    blurRadius: 3.0,
-                                  ),
-                                ],
-                                image: DecorationImage(
-                                  image: NetworkImage(category.image),
-                                  fit: BoxFit.fitWidth,
-                                ),
+                // for (var ii = 0; ii < model.vCategories.length; ii++)
+                if (model.vCategories != null)
+                  for (VideoCategory category in model.vCategories)
+                    if (category.type == vType.title)
+                      // if (model.vCategories[ii].type == vType.title)
+                      Padding(
+                        padding: EdgeInsets.all(10),
+                        child: InkWell(
+                          borderRadius: BorderRadius.circular(15),
+                          onTap: () {
+                            Navigator.push(
+                              mainContext,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    CategoryDetailPage(category: category),
                               ),
-                            ),
-                            Positioned(
-                              top: 0,
-                              child: Padding(
-                                padding: EdgeInsets.all(5),
-                                child: Icon(
-                                  LineIcons.playCircle,
-                                  color: white,
-                                ),
-                              ),
-                            ),
-                            Positioned(
-                              bottom: 13,
-                              child: Container(
-                                // width:
-                                padding: EdgeInsets.only(
-                                  top: 2,
-                                  bottom: 2,
-                                  left: 5,
-                                  right: 7,
-                                ),
-                                margin: EdgeInsets.symmetric(horizontal: 0),
+                            );
+                          },
+                          child: Stack(
+                            children: [
+                              Container(
+                                height: 130,
+                                width: 230,
                                 decoration: BoxDecoration(
-                                  color: Color.fromRGBO(0, 0, 50, 0.7),
-                                  borderRadius: BorderRadius.only(
-                                    bottomRight: Radius.circular(5),
-                                    topRight: Radius.circular(5),
-                                    // bottomRight: Radius.elliptical(10, 10),
-                                  ),
+                                  borderRadius: BorderRadius.circular(15),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: grey,
+                                      offset: Offset(0, 0),
+                                      blurRadius: 3.0,
+                                    ),
+                                  ],
                                 ),
-                                child: Text(
-                                  category.title,
-                                  style: TextStyle(
-                                    fontFamily: 'Source Sans Pro',
-                                    letterSpacing: 0.5,
-                                    fontSize: 13,
+                                child: ClipRRect(
+                                  borderRadius: BorderRadius.circular(15),
+                                  child: CachedNetworkImage(
+                                    imageUrl: category.image,
+                                    placeholder: (context, url) => Image(
+                                      image: AssetImage(
+                                          'assets/images/banner.jpg'),
+                                    ),
+                                    errorWidget: (context, url, error) => Image(
+                                      image: AssetImage(
+                                          'assets/images/banner.jpg'),
+                                    ),
                                   ),
                                 ),
                               ),
-                            ),
-                          ],
+                              Positioned(
+                                top: 0,
+                                child: Padding(
+                                  padding: EdgeInsets.all(10),
+                                  child: Icon(
+                                    LineIcons.list,
+                                    color: white,
+                                    size: 12,
+                                  ),
+                                ),
+                              ),
+                              Positioned(
+                                bottom: 13,
+                                child: Container(
+                                  // width:
+                                  padding: EdgeInsets.only(
+                                    top: 2,
+                                    bottom: 2,
+                                    left: 5,
+                                    right: 7,
+                                  ),
+                                  margin: EdgeInsets.symmetric(horizontal: 0),
+                                  decoration: BoxDecoration(
+                                    color: black,
+                                    borderRadius: BorderRadius.only(
+                                      bottomRight: Radius.circular(5),
+                                      topRight: Radius.circular(5),
+                                    ),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: grey,
+                                        offset: Offset(0.2, 0),
+                                        blurRadius: 2.0,
+                                      ),
+                                    ],
+                                  ),
+                                  child: Text(
+                                    category.title,
+                                    style: TextStyle(
+                                      fontFamily: 'Source Sans Pro',
+                                      letterSpacing: 1.2,
+                                      fontSize: 13,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                    )
+                      )
               ],
             ),
           ),
