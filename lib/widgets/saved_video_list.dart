@@ -13,6 +13,7 @@ class SavedVideoList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mainContext = context;
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -47,10 +48,10 @@ class SavedVideoList extends StatelessWidget {
                 child: CachedNetworkImage(
                   imageUrl: video.thumbnailUrl,
                   placeholder: (context, url) => Image(
-                    image: AssetImage('assets/images/banner.jpg'),
+                    image: AssetImage('assets/images/banner.png'),
                   ),
                   errorWidget: (context, url, error) => Image(
-                    image: AssetImage('assets/images/banner.jpg'),
+                    image: AssetImage('assets/images/banner.png'),
                   ),
                 ),
               ),
@@ -107,6 +108,8 @@ class SavedVideoList extends StatelessWidget {
                           IconButton(
                             onPressed: () {
                               model.deleteSavedVideo(video);
+                              showSnackBar(
+                                  context: mainContext, message: 'Deleted');
                             },
                             icon: Container(
                               height: 30,
@@ -138,5 +141,16 @@ class SavedVideoList extends StatelessWidget {
         );
       }),
     );
+  }
+
+  void showSnackBar({BuildContext context, String message}) {
+    final snackBar = SnackBar(
+      backgroundColor: grey,
+      content: Text(
+        message,
+        style: TextStyle(color: black),
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

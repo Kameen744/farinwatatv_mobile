@@ -5,14 +5,6 @@ class VideoCategory {
   String type;
   String image;
 
-  // VideoCategory({
-  //   this.title,
-  //   this.searchText,
-  //   this.id,
-  //   this.type,
-  //   this.image,
-  //   this.videos,
-  // });
   VideoCategory.fromJson(Map<String, dynamic> jsonMap)
       : id = jsonMap['id'] ?? 0,
         title = jsonMap['title'] ?? '',

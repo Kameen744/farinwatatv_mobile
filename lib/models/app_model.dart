@@ -32,9 +32,10 @@ class AppModel extends Model {
 
   Future initApp() async {
     await createDatabase();
-    await channelRepository.saveToDatabase();
+    await loadTypesAndCategories();
     await loadCarouselVideos();
-    await getVideoResources();
+    // await getVideoResources();
+    loadCategoryImages();
   }
 
   void selectPage({int pageIndex}) {
@@ -74,7 +75,7 @@ class AppModel extends Model {
     notifyListeners();
   }
 
-//  Videos ------------------------------------------------
+  //  Videos ------------------------------------------------
 
   // List<VideoClass> allVideos;
   List<VideoClass> searchPageVideos;
@@ -90,24 +91,21 @@ class AppModel extends Model {
   }
 
   Future loadTypesAndCategories() async {
-    await channelRepository.loadTypes('videotype');
-    await channelRepository.loadCategories('videocategory');
-
     try {
-      List<Map> _vidTypes =
-          await database.rawQuery('SELECT * FROM v_type ORDER BY title ASC');
-      videoTypes = _vidTypes.map((type) => VideoType.fromJson(type)).toList();
-      // video categories
-      List<Map> _vidCat = await database
-          .rawQuery('SELECT * FROM v_category ORDER BY title ASC');
-      vCategories = _vidCat.map((cat) => VideoCategory.fromJson(cat)).toList();
+      await channelRepository.loadTypes('videotype');
+      await channelRepository.loadCategories('videocategory');
     } catch (e) {}
+
+    List<Map> _vidTypes =
+        await database.rawQuery('SELECT * FROM v_type ORDER BY title ASC');
+    videoTypes = _vidTypes.map((type) => VideoType.fromJson(type)).toList();
+    // video categories
+    List<Map> _vidCat =
+        await database.rawQuery('SELECT * FROM v_category ORDER BY title ASC');
+    vCategories = _vidCat.map((cat) => VideoCategory.fromJson(cat)).toList();
   }
 
   Future loadCategoryImages() async {
-    if (vCategories == null) {
-      await loadTypesAndCategories();
-    }
     for (int i = 0; i < vCategories.length; i++) {
       String src = vCategories[i].searchText;
 
@@ -127,31 +125,27 @@ class AppModel extends Model {
     return ttRecords.first['total'];
   }
 
-  Future getVideoResources() async {
-    int records = await totalRecords();
-    if (records < 581) {
-      try {
-        await channelRepository.saveToDatabase();
-        await channelRepository.saveToDatabase();
-        await channelRepository.saveToDatabase();
-      } catch (e) {}
-    } else if (records > 5000) {
-      channelRepository.cleanDatabase(records - 5000);
-    }
-    print('all videos --${await totalRecords()}--');
-    loadCategoryImages();
-  }
-
   Future loadCarouselVideos() async {
+    try {
+      await channelRepository.saveToDatabase(firstRequest: true);
+      int records = await totalRecords();
+
+      if (records < 521) {
+        await channelRepository.saveToDatabase(firstRequest: false);
+        await channelRepository.saveToDatabase(firstRequest: false);
+      } else if (records > 10000) {
+        channelRepository.cleanDatabase(records - 10000);
+      }
+    } catch (e) {}
+
     List search = await database
         .rawQuery("SELECT * FROM videos ORDER BY publishedAt DESC LIMIT 6");
     carouselVideos = await mapToVideoClass(search);
-    notifyListeners();
   }
 
   Future searchVideo({searchText}) async {
-    List search = await database
-        .rawQuery("SELECT * FROM videos WHERE title LIKE '%$searchText%'");
+    List search = await database.rawQuery(
+        "SELECT * FROM videos WHERE title LIKE '%$searchText%' ORDER BY publishedAt DESC");
     categoryEpisodes = search.length;
     notifyListeners();
     return await mapToVideoClass(search);
@@ -228,23 +222,24 @@ class AppModel extends Model {
   }
 
   Future createDatabase() async {
-    var databasesPath = await getDatabasesPath();
-    var path = join(databasesPath, 'frwTv.db');
+    try {
+      var databasesPath = await getDatabasesPath();
+      var path = join(databasesPath, 'frwTv.db');
 
-    database = await openDatabase(path, version: 1,
-        onCreate: (Database db, int version) async {
-      db.execute(
-          'CREATE TABLE IF NOT EXISTS videos (rId INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL, title TEXT NOT NULL, thumbnailUrl TEXT NOT NULL, thumbHigh TEXT NOT NULL, channelTitle TEXT NOT NULL, publishedAt TEXT NOT NULL, UNIQUE(id))');
-      db.execute(
-          'CREATE TABLE IF NOT EXISTS saved_v (rId INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL, title TEXT NOT NULL, thumbnailUrl TEXT NOT NULL, thumbHigh TEXT NOT NULL, channelTitle TEXT NOT NULL, publishedAt TEXT NOT NULL, UNIQUE(id))');
-      db.execute(
-          'CREATE TABLE IF NOT EXISTS v_type (rId INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER, title TEXT NOT NULL, description TEXT NOT NULL, UNIQUE(title))');
-      db.execute(
-          'CREATE TABLE IF NOT EXISTS v_category (rId INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER, title TEXT NOT NULL, search TEXT NOT NULL, type TEXT NOT NULL, image TEXT NOT NULL, UNIQUE(title))');
-      db.execute(
-          'CREATE TABLE IF NOT EXISTS next_page (rId INTEGER PRIMARY KEY AUTOINCREMENT, page TEXT NOT NULL, UNIQUE(page))');
-    });
-
+      database = await openDatabase(path, version: 1,
+          onCreate: (Database db, int version) async {
+        db.execute(
+            'CREATE TABLE IF NOT EXISTS videos (rId INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL, title TEXT NOT NULL, thumbnailUrl TEXT NOT NULL, thumbHigh TEXT NOT NULL, channelTitle TEXT NOT NULL, publishedAt TEXT NOT NULL, UNIQUE(id))');
+        db.execute(
+            'CREATE TABLE IF NOT EXISTS saved_v (rId INTEGER PRIMARY KEY AUTOINCREMENT, id TEXT NOT NULL, title TEXT NOT NULL, thumbnailUrl TEXT NOT NULL, thumbHigh TEXT NOT NULL, channelTitle TEXT NOT NULL, publishedAt TEXT NOT NULL, UNIQUE(id))');
+        db.execute(
+            'CREATE TABLE IF NOT EXISTS v_type (rId INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER, title TEXT NOT NULL, description TEXT NOT NULL, UNIQUE(title))');
+        db.execute(
+            'CREATE TABLE IF NOT EXISTS v_category (rId INTEGER PRIMARY KEY AUTOINCREMENT, id INTEGER, title TEXT NOT NULL, search TEXT NOT NULL, type TEXT NOT NULL, image TEXT NOT NULL, UNIQUE(title))');
+        db.execute(
+            'CREATE TABLE IF NOT EXISTS next_page (rId INTEGER PRIMARY KEY AUTOINCREMENT, page TEXT NOT NULL, UNIQUE(page))');
+      });
+    } catch (e) {}
     channelRepository = ChannelRepository(database: database);
   }
 

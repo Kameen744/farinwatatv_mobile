@@ -16,6 +16,7 @@ class VideoList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final mainContext = context;
     return GestureDetector(onTap: () {
       Navigator.push(
         context,
@@ -48,10 +49,10 @@ class VideoList extends StatelessWidget {
               child: CachedNetworkImage(
                 imageUrl: video.thumbnailUrl,
                 placeholder: (context, url) => Image(
-                  image: AssetImage('assets/images/banner.jpg'),
+                  image: AssetImage('assets/images/banner.png'),
                 ),
                 errorWidget: (context, url, error) => Image(
-                  image: AssetImage('assets/images/banner.jpg'),
+                  image: AssetImage('assets/images/banner.png'),
                 ),
               ),
             ),
@@ -126,15 +127,17 @@ class VideoList extends StatelessWidget {
                                   ),
                                 ),
                               ),
-                              // iconSize: 20,
-                              // elevation: 16,
-                              // style: TextStyle(color: Colors.deepPurple),
-
                               onChanged: (String newValue) {
                                 if (newValue == 'Save') {
                                   model.saveVideoStream(video);
+                                  showSnackBar(
+                                      context: mainContext,
+                                      message: 'Downloading please wait...');
                                 } else if (newValue == 'Fav') {
                                   model.addFavourite(video);
+                                  showSnackBar(
+                                      context: mainContext,
+                                      message: 'Added to Favourites');
                                 } else if (newValue == 'Share') {
                                   Share.share(
                                       'https://www.youtube.com/watch?v=${video.id}');
@@ -235,5 +238,16 @@ class VideoList extends StatelessWidget {
         ),
       );
     }));
+  }
+
+  void showSnackBar({BuildContext context, String message}) {
+    final snackBar = SnackBar(
+      backgroundColor: grey,
+      content: Text(
+        message,
+        style: TextStyle(color: black),
+      ),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

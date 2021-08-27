@@ -96,10 +96,10 @@ class HomePage extends StatelessWidget {
                         fit: BoxFit.fitWidth,
                         imageUrl: video.thumbnailUrl,
                         placeholder: (context, url) => Image(
-                          image: AssetImage('assets/images/banner.jpg'),
+                          image: AssetImage('assets/images/banner.png'),
                         ),
                         errorWidget: (context, url, error) => Image(
-                          image: AssetImage('assets/images/banner.jpg'),
+                          image: AssetImage('assets/images/banner.png'),
                         ),
                       ),
                     ),
@@ -217,11 +217,9 @@ class HomePage extends StatelessWidget {
             scrollDirection: Axis.horizontal,
             child: Row(
               children: [
-                // for (var ii = 0; ii < model.vCategories.length; ii++)
                 if (model.vCategories != null)
                   for (VideoCategory category in model.vCategories)
                     if (category.type == vType.title)
-                      // if (model.vCategories[ii].type == vType.title)
                       Padding(
                         padding: EdgeInsets.all(10),
                         child: InkWell(
@@ -256,11 +254,11 @@ class HomePage extends StatelessWidget {
                                     imageUrl: category.image,
                                     placeholder: (context, url) => Image(
                                       image: AssetImage(
-                                          'assets/images/banner.jpg'),
+                                          'assets/images/banner.png'),
                                     ),
                                     errorWidget: (context, url, error) => Image(
                                       image: AssetImage(
-                                          'assets/images/banner.jpg'),
+                                          'assets/images/banner.png'),
                                     ),
                                   ),
                                 ),
@@ -314,7 +312,7 @@ class HomePage extends StatelessWidget {
                             ],
                           ),
                         ),
-                      )
+                      ),
               ],
             ),
           ),

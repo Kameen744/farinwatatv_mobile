@@ -26,11 +26,12 @@ class _LivePageState extends State<LivePage> {
   InAppWebViewGroupOptions options = InAppWebViewGroupOptions(
     crossPlatform: InAppWebViewOptions(
       useShouldOverrideUrlLoading: true,
-      // mediaPlaybackRequiresUserGesture: false,
-      // preferredContentMode: UserPreferredContentMode.MOBILE,
+      mediaPlaybackRequiresUserGesture: false,
+      preferredContentMode: UserPreferredContentMode.MOBILE,
     ),
     android: AndroidInAppWebViewOptions(
       useHybridComposition: true,
+      forceDark: AndroidForceDark.FORCE_DARK_ON,
     ),
     ios: IOSInAppWebViewOptions(
       allowsInlineMediaPlayback: true,
@@ -63,82 +64,36 @@ class _LivePageState extends State<LivePage> {
             preferredSize: size,
           ),
           body: Container(
-            child: Column(
-              children: <Widget>[
-                Expanded(
-                  child: Stack(
-                    children: [
-                      Container(
-                        color: Colors.red,
-                        child: InAppWebView(
-                          key: webViewKey,
-                          initialUrlRequest: URLRequest(
-                            url: Uri.parse(
-                                "https://player.twitch.tv/?channel=farinwatatv&enableExtensions=true&parent=twitch.tv&player=popout&volume=1"),
-                          ),
-                          pullToRefreshController: pullToRefreshController,
-                          onWebViewCreated: (controller) {
-                            webViewController = controller;
-                            model.enableWakeLock(true);
-                          },
-                          onLoadStart: (controller, url) {
-                            if (url.toString() == mainUrl) {
-                              setState(() {
-                                this.url = url.toString();
-                                urlController.text = this.url;
-                              });
-                            } else {
-                              controller.stopLoading();
-                              controller.goBack();
-                            }
-                          },
-                        ),
-                      ),
-                      // Positioned(
-                      //   top: 10,
-                      //   left: 5,
-                      //   child: Container(
-                      //     color: Colors.transparent,
-                      //     width: 150,
-                      //     height: 120,
-                      //   ),
-                      // ),
-                      // Positioned(
-                      //   bottom: 12,
-                      //   right: 110,
-                      //   child: Container(
-                      //     color: Colors.transparent,
-                      //     width: 30,
-                      //     height: 25,
-                      //   ),
-                      // ),
-                      // Positioned(
-                      //   bottom: 12,
-                      //   right: 10,
-                      //   child: Container(
-                      //     color: Colors.red,
-                      //     width: 65,
-                      //     height: 25,
-                      //     child: Center(
-                      //       child: Text(
-                      //         'Live',
-                      //         style: TextStyle(color: white),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                    ],
-                  ),
-                ),
-                model.portrait ? SizedBox(height: 60) : SizedBox(),
-              ],
+            color: black,
+            child: InAppWebView(
+              key: webViewKey,
+              initialOptions: options,
+              initialUrlRequest: URLRequest(
+                url: Uri.parse(
+                    "https://player.twitch.tv/?channel=farinwatatv&enableExtensions=true&parent=twitch.tv&player=popout&volume=1"),
+              ),
+              pullToRefreshController: pullToRefreshController,
+              onWebViewCreated: (controller) {
+                webViewController = controller;
+                model.enableWakeLock(true);
+              },
+              onLoadStart: (controller, url) {
+                if (url.toString() == mainUrl) {
+                  setState(() {
+                    this.url = url.toString();
+                    urlController.text = this.url;
+                  });
+                } else {
+                  controller.stopLoading();
+                  controller.goBack();
+                }
+              },
             ),
           ),
         ),
       );
     });
   }
-  // https://player.twitch.tv/?channel=farinwatatv&enableExtensions=true&muted=false&parent=twitch.tv&player=popout&volume=1
 
   overrideRequest(InAppWebViewController controller,
       shouldOverrideUrlLoadingRequest) async {

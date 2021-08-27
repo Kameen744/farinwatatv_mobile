@@ -111,60 +111,54 @@ class _RootPageState extends State<RootPage> {
   Widget getBody(AppModel model) {
     return AnimatedSwitcher(
       duration: Duration(seconds: 1),
-      transitionBuilder: (child, animation) {
-        return ScaleTransition(
-          child: child,
-          scale: animation,
-        );
+      reverseDuration: Duration(seconds: 2),
+      transitionBuilder: (Widget child, Animation<double> animation) {
+        return ScaleTransition(child: child, scale: animation);
       },
       child: Padding(
         padding: EdgeInsets.symmetric(horizontal: 5),
         child: pages[model.selectedPageIndex],
       ),
     );
-    // return IndexedStack(
-    //   index: model.selectedPageIndex,
-    //   children: [
-    //     HomePage(),
-    //     SearchPage(),
-    //     LivePage(),
-    //     DownloadPage(),
-    //   ],
-    // );
   }
 
   Widget getFloatingActionButton(AppModel model) {
-    return !model.portrait
-        ? SizedBox()
-        : NavigationBar(
-            selectedIndex: model.selectedPageIndex,
-            showActiveButtonText: false,
-            textStyle: TextStyle(color: white, fontWeight: FontWeight.bold),
-            navigationBarButtons: [
-              NavigationBarButton(
-                icon: LineIcons.home,
-                backgroundColor: black,
-              ),
-              NavigationBarButton(
-                icon: LineIcons.search,
-                backgroundColor: black,
-              ),
-              NavigationBarButton(
-                icon: LineIcons.youtube,
-                backgroundColor: black,
-              ),
-              NavigationBarButton(
-                icon: LineIcons.download,
-                backgroundColor: black,
-              ),
-              NavigationBarButton(
-                icon: LineIcons.heart,
-                backgroundColor: black,
-              ),
-            ],
-            onTabChange: (index) {
-              model.selectPage(pageIndex: index);
-            },
-          );
+    if (model.portrait) {
+      if (model.selectedPageIndex == 2) {
+        return SizedBox();
+      }
+      return NavigationBar(
+        selectedIndex: model.selectedPageIndex,
+        showActiveButtonText: false,
+        textStyle: TextStyle(color: white, fontWeight: FontWeight.bold),
+        navigationBarButtons: [
+          NavigationBarButton(
+            icon: LineIcons.home,
+            backgroundColor: black,
+          ),
+          NavigationBarButton(
+            icon: LineIcons.search,
+            backgroundColor: black,
+          ),
+          NavigationBarButton(
+            icon: LineIcons.youtube,
+            backgroundColor: black,
+          ),
+          NavigationBarButton(
+            icon: LineIcons.download,
+            backgroundColor: black,
+          ),
+          NavigationBarButton(
+            icon: LineIcons.heart,
+            backgroundColor: black,
+          ),
+        ],
+        onTabChange: (index) {
+          model.selectPage(pageIndex: index);
+        },
+      );
+    } else {
+      return SizedBox();
+    }
   }
 }

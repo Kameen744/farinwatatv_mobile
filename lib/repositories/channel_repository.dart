@@ -10,109 +10,87 @@ class ChannelRepository {
   String _apiKeyTwo = 'AIzaSyBu5vMApyQbxTJhB5oEcObvTemCENQfz4k';
   String nexPageToken;
   Database database;
-
   Dio _dio = Dio();
   ChannelRepository({@required this.database});
 
-  _getUrl({pageToken, api}) {
-    if (api != null) {
-      _apiKey = api;
+  _getUrl({apiKey}) {
+    if (nexPageToken == null) {
+      return '$_mainUrl/search?part=snippet&channelId=$_channelId&maxResults=50&order=date&type=video&key=$apiKey';
+    } else {
+      return '$_mainUrl/search?part=snippet&channelId=$_channelId&pageToken=$nexPageToken&maxResults=50&order=date&type=video&key=$apiKey';
     }
-
-    if (pageToken != null) {
-      return '$_mainUrl/search?part=snippet&channelId=$_channelId&pageToken=$pageToken&maxResults=50&order=date&type=video&key=$_apiKey';
-    }
-
-    return '$_mainUrl/search?part=snippet&channelId=$_channelId&maxResults=50&order=date&type=video&key=$_apiKey';
   }
 
-  void setNextPage(next) async {
+  Future _insertNextPage(next) async {
     await database
         .rawQuery('INSERT OR IGNORE INTO next_page (page) VALUES(?)', [next]);
   }
 
-  Future _getResource() async {
-    var response;
-
-    List dbNextPage = await database
-        .rawQuery('SELECT page FROM next_page ORDER BY rId DESC LIMIT 1');
-
+  Future _nextPageToken() async {
+    List dbNextPage =
+        await database.rawQuery('SELECT page FROM next_page ORDER BY rId DESC');
     if (dbNextPage.isNotEmpty) {
       nexPageToken = dbNextPage.first['page'];
     }
+  }
 
-    final url = _getUrl(pageToken: nexPageToken, api: null);
-    final url2 = _getUrl(pageToken: nexPageToken, api: _apiKeyTwo);
+  Future saveToDatabase({@required firstRequest}) async {
+    if (firstRequest == false) {
+      await _nextPageToken();
+    }
+
+    Response<dynamic> response;
 
     try {
+      String url = await _getUrl(apiKey: _apiKey);
       response = await _dio.get(url);
-      print('url-1 connected................');
     } catch (e) {
+      String url2 = await _getUrl(apiKey: _apiKeyTwo);
       response = await _dio.get(url2);
-      print('url-2 connected................');
     }
 
     if (response.data['nextPageToken'] != null) {
-      setNextPage(response.data['nextPageToken']);
+      await _insertNextPage(response.data['nextPageToken']);
     }
-    return response.data['items'];
-  }
+    if (response.data['items'] != null) {
+      response.data['items'].forEach((video) async {
+        var vInsert = [
+          video['id']['videoId'],
+          video['snippet']['title'],
+          video['snippet']['thumbnails']['medium']['url'],
+          video['snippet']['thumbnails']['high']['url'],
+          video['snippet']['channelTitle'],
+          video['snippet']['publishedAt']
+        ];
+        await database.rawQuery(
+            'INSERT OR IGNORE INTO videos(id, title, thumbnailUrl, thumbHigh, channelTitle, publishedAt) VALUES(?,?,?,?,?,?)',
+            vInsert);
+      });
+    }
 
-  // Future<List<Map<String, Object>>>
-  Future saveToDatabase() async {
-    List videos = await _getResource();
-    videos.forEach((video) async {
-      var vInsert = [
-        video['id']['videoId'],
-        video['snippet']['title'],
-        video['snippet']['thumbnails']['medium']['url'],
-        video['snippet']['thumbnails']['high']['url'],
-        video['snippet']['channelTitle'],
-        video['snippet']['publishedAt']
-      ];
-      database.rawQuery(
-          'INSERT OR IGNORE INTO videos(id, title, thumbnailUrl, thumbHigh, channelTitle, publishedAt) VALUES(?,?,?,?,?,?)',
-          vInsert);
-
-      // var videoCheck = await database.rawQuery(
-      //     'SELECT id FROM videos WHERE id = ?', [video['id']['videoId']]);
-      // if (videoCheck.isEmpty) {
-      //   var vInsert = [
-      //     video['id']['videoId'],
-      //     video['snippet']['title'],
-      //     video['snippet']['thumbnails']['medium']['url'],
-      //     video['snippet']['thumbnails']['high']['url'],
-      //     video['snippet']['channelTitle'],
-      //     video['snippet']['publishedAt']
-      //   ];
-      //
-      //   await database.rawInsert(
-      //       'INSERT OR IGNORE INTO videos(id, title, thumbnailUrl, thumbHigh, channelTitle, publishedAt) VALUES(?,?,?,?,?,?)',
-      //       vInsert);
-      // }
-    });
+    // videos.forEach((video) async {
+    //   var vInsert = [
+    //     video['id']['videoId'],
+    //     video['snippet']['title'],
+    //     video['snippet']['thumbnails']['medium']['url'],
+    //     video['snippet']['thumbnails']['high']['url'],
+    //     video['snippet']['channelTitle'],
+    //     video['snippet']['publishedAt']
+    //   ];
+    //   try {
+    //     await database.rawQuery(
+    //         'INSERT OR IGNORE INTO videos(id, title, thumbnailUrl, thumbHigh, channelTitle, publishedAt) VALUES(?,?,?,?,?,?)',
+    //         vInsert);
+    //   } catch (e) {}
+    // });
   }
 
   Future _types(List types) async {
     if (types.isNotEmpty) {
-      return database.transaction((txn) async {
-        types.forEach((type) async {
-          int typeId = type['id'];
-          String typeTitle = type['title'];
-          String typeDesc = type['description'];
-
-          // var dbType = await txn
-          //     .rawQuery('SELECT id FROM v_type WHERE id = ?', [typeId]);
-          // if (dbType.isEmpty) {
-          //   await txn.rawQuery(
-          //       'INSERT OR IGNORE INTO v_type(id, title, description) VALUES(?, ?, ?)',
-          //       [typeId, typeTitle, typeDesc]);
-          // }
-
-          await txn.rawQuery(
-              'INSERT OR IGNORE INTO v_type(id, title, description) VALUES(?, ?, ?)',
-              [typeId, typeTitle, typeDesc]);
-        });
+      types.forEach((type) async {
+        await database.rawQuery(
+            'INSERT OR IGNORE INTO v_type(id, title, description) VALUES(?, ?, ?)',
+            [type['id'], type['title'], type['description']]);
       });
     }
   }
@@ -120,55 +98,31 @@ class ChannelRepository {
   Future _categories(List cats) async {
     if (cats.isNotEmpty) {
       cats.forEach((cat) async {
-        int catId = cat['id'];
-        var _ins = [
-          catId,
-          cat['title'],
-          cat['search'],
-          cat['type'],
-          cat['image'],
-        ];
-
-        // var dbType = await database
-        //     .rawQuery('SELECT id FROM v_category WHERE id = ?', [catId]);
-        // if (dbType.isEmpty) {
-        //   database.rawQuery(
-        //       'INSERT OR IGNORE INTO v_category (id, title, search, type, image) VALUES(?, ?, ?, ?, ?)',
-        //       _ins);
-        // }
-        database.rawQuery(
+        await database.rawQuery(
             'INSERT OR IGNORE INTO v_category (id, title, search, type, image) VALUES(?, ?, ?, ?, ?)',
-            _ins);
+            [
+              cat['id'],
+              cat['title'],
+              cat['search'],
+              cat['type'],
+              cat['image']
+            ]);
       });
     }
   }
 
   Future loadTypes(url) async {
     var response = await _dio.get('$_webUrl/$url');
-    _types(response.data);
+    await _types(response.data);
   }
 
   Future loadCategories(url) async {
     var response = await _dio.get('$_webUrl/$url');
-    _categories(response.data);
+    await _categories(response.data);
   }
-  // Future getWebResource(String url) async {
-  //   try {
-  //     final response = await _dio.get('$_webUrl/$url');
-  //     if (url == 'videotype') {
-  //       await _types(response.data);
-  //     } else {
-  //       // int count = Sqflite.firstIntValue(
-  //       //     await database.rawQuery('SELECT COUNT(*) FROM v_category'));
-  //       // assert(count == 2);
-  //       // await _categories(response.data);
-  //     }
-  //   } on DioError {}
-  //   return [];
-  // }
 
   void cleanDatabase(int rows) async {
-    database.rawQuery(
+    await database.rawQuery(
         'DELETE FROM videos WHERE id IN (SELECT id FROM videos ORDER BY publishedAt ASC LIMIT $rows)');
   }
 }

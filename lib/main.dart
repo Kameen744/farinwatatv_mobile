@@ -41,39 +41,6 @@ class MyApp extends StatelessWidget {
         },
       ),
     );
-    // return FutureBuilder(
-    //   future: Future.delayed(Duration(seconds: 3)),
-    //   builder: (context, AsyncSnapshot snapshot) {
-    //     if (snapshot.connectionState == ConnectionState.waiting) {
-    //       return MaterialApp(home: Splash());
-    //     } else {
-    //
-    //     }
-    //   },
-    // );
-    // SplashScreen(
-    //     gradientBackground: LinearGradient(
-    //       begin: Alignment.topCenter,
-    //       end: Alignment.bottomCenter,
-    //       colors: [black, black],
-    //     ),
-    //     seconds: 5,
-    //     navigateAfterSeconds: RootPage(),
-    //     title: Text(
-    //       'Farinwata TV\n On Startimes Channel 178 / 470',
-    //       textAlign: TextAlign.center,
-    //       style: TextStyle(
-    //         fontFamily: 'Bad Script',
-    //         fontSize: 20,
-    //         color: grey,
-    //         fontWeight: FontWeight.bold,
-    //         letterSpacing: 2.0,
-    //       ),
-    //     ),
-    //     image: Image.asset('assets/images/icon.png'),
-    //     photoSize: 100.0,
-    //     loaderColor: grey),
-    // RootPage(),
   }
 }
 
@@ -89,9 +56,9 @@ class Splash extends StatelessWidget {
               Padding(
                 padding: EdgeInsets.only(top: 120, bottom: 10),
                 child: Image(
-                  width: 150,
-                  height: 150,
-                  image: AssetImage('assets/images/icon.png'),
+                  width: 180,
+                  height: 180,
+                  image: AssetImage('assets/images/logoLight.png'),
                 ),
               ),
               Text(
